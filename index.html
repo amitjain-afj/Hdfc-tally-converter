@@ -1,313 +1,626 @@
 <!DOCTYPE html>
 <html lang="hi">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HDFC to Tally Converter</title>
-    <script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js"></script>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: Arial, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 16px;
-        }
-        
-        .container {
-            max-width: 500px;
-            margin: auto;
-            background: white;
-            border-radius: 24px;
-            padding: 24px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
-        }
-        
-        h1 {
-            font-size: 24px;
-            text-align: center;
-            color: #333;
-            margin-bottom: 8px;
-        }
-        
-        .sub {
-            text-align: center;
-            color: #666;
-            font-size: 14px;
-            margin-bottom: 24px;
-        }
-        
-        .upload-box {
-            border: 2px dashed #667eea;
-            border-radius: 16px;
-            padding: 40px 20px;
-            text-align: center;
-            background: #f8f9ff;
-            margin-bottom: 20px;
-            cursor: pointer;
-        }
-        
-        .upload-icon {
-            font-size: 48px;
-            margin-bottom: 12px;
-        }
-        
-        .file-info {
-            background: #e8f4f8;
-            padding: 12px 16px;
-            border-radius: 12px;
-            margin-bottom: 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .btn {
-            width: 100%;
-            padding: 16px;
-            border: none;
-            border-radius: 12px;
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-            margin: 8px 0;
-        }
-        
-        .btn-primary {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-        }
-        
-        .btn-green {
-            background: #28a745;
-            color: white;
-        }
-        
-        .info {
-            background: #f0f0f0;
-            padding: 16px;
-            border-radius: 12px;
-            margin-top: 20px;
-            font-size: 14px;
-        }
-        
-        .info h3 {
-            font-size: 16px;
-            margin-bottom: 12px;
-        }
-        
-        .info ol {
-            margin-left: 20px;
-        }
-        
-        .info li {
-            margin: 8px 0;
-        }
-        
-        .status {
-            margin-top: 16px;
-            padding: 12px;
-            border-radius: 8px;
-            text-align: center;
-            display: none;
-        }
-        
-        .status.success {
-            background: #d4edda;
-            color: #155724;
-            display: block;
-        }
-        
-        .status.error {
-            background: #f8d7da;
-            color: #721c24;
-            display: block;
-        }
-        
-        .remove-icon {
-            background: #ff4757;
-            color: white;
-            width: 28px;
-            height: 28px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-        }
-    </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Universal Bank to Tally Converter - All Indian Banks</title>
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 650px;
+            margin: auto;
+            background: white;
+            border-radius: 24px;
+            padding: 24px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        
+        h1 {
+            font-size: 24px;
+            text-align: center;
+            color: #333;
+            margin-bottom: 8px;
+        }
+        
+        .sub {
+            text-align: center;
+            color: #666;
+            font-size: 13px;
+            margin-bottom: 20px;
+        }
+        
+        .bank-badges {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+        
+        .bank-badge {
+            background: #e8eaff;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            color: #667eea;
+        }
+        
+        .file-type-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .tab-btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            background: #f0f0f0;
+            color: #666;
+        }
+        
+        .tab-btn.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .upload-area {
+            border: 2px dashed #667eea;
+            border-radius: 16px;
+            padding: 40px 20px;
+            text-align: center;
+            background: #f8f9ff;
+            margin-bottom: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .upload-icon {
+            font-size: 48px;
+            margin-bottom: 12px;
+        }
+        
+        .file-info {
+            background: #e8f4f8;
+            padding: 12px 16px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .btn {
+            width: 100%;
+            padding: 16px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            margin: 8px 0;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .btn-green {
+            background: #28a745;
+            color: white;
+        }
+        
+        .info-box {
+            background: #f0f0f0;
+            padding: 16px;
+            border-radius: 12px;
+            margin-top: 20px;
+            font-size: 13px;
+        }
+        
+        .info-box h3 {
+            font-size: 15px;
+            margin-bottom: 12px;
+        }
+        
+        .info-box ul {
+            margin-left: 20px;
+        }
+        
+        .info-box li {
+            margin: 6px 0;
+        }
+        
+        .status {
+            margin-top: 16px;
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+            display: none;
+        }
+        
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            display: block;
+        }
+        
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            display: block;
+        }
+        
+        .status.loading {
+            background: #d1ecf1;
+            color: #0c5460;
+            display: block;
+        }
+        
+        .remove-icon {
+            background: #ff4757;
+            color: white;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+        
+        .detected-info {
+            background: #e8f4f8;
+            border-left: 4px solid #667eea;
+            padding: 12px;
+            margin: 15px 0;
+            border-radius: 8px;
+            font-size: 13px;
+            display: none;
+        }
+    </style>
 </head>
 <body>
-    <div class="container">
-        <h1>🏦 HDFC Bank → Tally Prime</h1>
-        <div class="sub">Bank Statement Converter</div>
-        
-        <div class="upload-box" onclick="document.getElementById('fileInput').click()">
-            <div class="upload-icon">📁</div>
-            <p>Tap to select HDFC Excel file</p>
-        </div>
-        
-        <input type="file" id="fileInput" accept=".xlsx,.xls" style="display:none">
-        
-        <div id="fileInfo" style="display:none"></div>
-        
-        <button class="btn btn-primary" id="convertBtn" onclick="convertToTally()" disabled>
-            🔄 Convert to Tally Format
-        </button>
-        
-        <button class="btn btn-green" onclick="downloadTemplate()">
-            📥 Download Sample Template
-        </button>
-        
-        <div class="info">
-            <h3>📌 Kaise Use Karein:</h3>
-            <ol>
-                <li>HDFC bank ki Excel file select karein</li>
-                <li>Convert button dabayein</li>
-                <li>File download hogi Tally format mein</li>
-                <li>Tally Prime → Import Bank Statement</li>
-                <li>File select karein → Done ✅</li>
-            </ol>
-        </div>
-        
-        <div id="status"></div>
-    </div>
-    
-    <script>
-        let selectedFile = null;
-        
-        document.getElementById('fileInput').addEventListener('change', function(e) {
-            if(e.target.files.length > 0) {
-                selectedFile = e.target.files[0];
-                document.getElementById('fileInfo').innerHTML = `
-                    <div class="file-info">
-                        <span>📄 ${selectedFile.name}</span>
-                        <div class="remove-icon" onclick="removeFile()">✖</div>
-                    </div>
-                `;
-                document.getElementById('fileInfo').style.display = 'block';
-                document.getElementById('convertBtn').disabled = false;
-                document.querySelector('.upload-box').style.display = 'none';
-            }
-        });
-        
-        function removeFile() {
-            selectedFile = null;
-            document.getElementById('fileInput').value = '';
-            document.getElementById('fileInfo').style.display = 'none';
-            document.getElementById('convertBtn').disabled = true;
-            document.querySelector('.upload-box').style.display = 'block';
-            document.getElementById('status').innerHTML = '';
-        }
-        
-        function convertToTally() {
-            if(!selectedFile) {
-                showStatus('❌ Pehle file select karein!', 'error');
-                return;
-            }
-            
-            showStatus('⏳ Converting... Please wait', 'success');
-            
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                try {
-                    const data = new Uint8Array(e.target.result);
-                    const workbook = XLSX.read(data, {type: 'array'});
-                    const sheet = workbook.Sheets[workbook.SheetNames[0]];
-                    const rows = XLSX.utils.sheet_to_json(sheet);
-                    
-                    if(rows.length === 0) {
-                        showStatus('❌ File khali hai!', 'error');
-                        return;
-                    }
-                    
-                    const tallyRows = [];
-                    tallyRows.push(['Date', 'Narration', 'Debit', 'Credit', 'BankName']);
-                    
-                    for(let i = 0; i < rows.length; i++) {
-                        const row = rows[i];
-                        
-                        const date = row['Date'] || row['DATE'] || row['Transaction Date'] || row['Value Date'] || '';
-                        const narration = row['Description'] || row['Narration'] || row['Remarks'] || row['Transaction Description'] || 'N/A';
-                        const debit = row['Withdrawal'] || row['Withdrawal Amt'] || row['Debit'] || row['DR'] || 0;
-                        const credit = row['Deposit'] || row['Deposit Amt'] || row['Credit'] || row['CR'] || 0;
-                        
-                        tallyRows.push([
-                            formatDate(date),
-                            String(narration).substring(0, 100),
-                            Number(debit) || 0,
-                            Number(credit) || 0,
-                            'HDFC Bank'
-                        ]);
-                    }
-                    
-                    const ws = XLSX.utils.aoa_to_sheet(tallyRows);
-                    const wb = XLSX.utils.book_new();
-                    XLSX.utils.book_append_sheet(wb, ws, 'Tally_Bank_Statement');
-                    
-                    ws['!cols'] = [
-                        {wch:12}, {wch:40}, {wch:12}, {wch:12}, {wch:15}
-                    ];
-                    
-                    const fileName = `tally_hdfc_${Date.now()}.xlsx`;
-                    XLSX.writeFile(wb, fileName);
-                    showStatus('✅ Converted successfully! File downloaded: ' + fileName, 'success');
-                    
-                } catch(err) {
-                    showStatus('❌ Error: ' + err.message, 'error');
-                }
-            };
-            reader.onerror = function() {
-                showStatus('❌ File read error!', 'error');
-            };
-            reader.readAsArrayBuffer(selectedFile);
-        }
-        
-        function formatDate(date) {
-            if(!date) return '';
-            try {
-                const d = new Date(date);
-                if(isNaN(d.getTime())) return String(date);
-                const day = d.getDate().toString().padStart(2,'0');
-                const month = (d.getMonth()+1).toString().padStart(2,'0');
-                const year = d.getFullYear();
-                return `${day}-${month}-${year}`;
-            } catch(e) {
-                return String(date);
-            }
-        }
-        
-        function showStatus(msg, type) {
-            const statusDiv = document.getElementById('status');
-            statusDiv.className = `status ${type}`;
-            statusDiv.innerHTML = msg;
-            setTimeout(() => {
-                if(statusDiv.className === `status ${type}`) {
-                    statusDiv.innerHTML = '';
-                    statusDiv.style.display = 'none';
-                }
-            }, 5000);
-        }
-        
-        function downloadTemplate() {
-            const template = [
-                ['Date', 'Description', 'Withdrawal', 'Deposit'],
-                ['01-04-2026', 'SALARY CREDIT', '', '50000'],
-                ['02-04-2026', 'ATM WITHDRAWAL', '5000', ''],
-                ['03-04-2026', 'UPI PAYMENT', '1500', ''],
-                ['04-04-2026', 'NEFT RECEIVED', '', '25000'],
-                ['05-04-2026', 'CHEQUE PAYMENT', '10000', '']
-            ];
-            const ws = XLSX.utils.aoa_to_sheet(template);
-            const wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, ws, 'HDFC_Sample');
-            XLSX.writeFile(wb, 'hdfc_sample_format.xlsx');
-        }
-    </script>
+    <div class="container">
+        <h1>🏦 Universal Bank → Tally Prime</h1>
+        <div class="sub">Excel & PDF to Tally Format | All Indian Banks Supported</div>
+        
+        <div class="bank-badges">
+            <span class="bank-badge">🏦 HDFC</span>
+            <span class="bank-badge">🏦 SBI</span>
+            <span class="bank-badge">🏦 ICICI</span>
+            <span class="bank-badge">🏦 AXIS</span>
+            <span class="bank-badge">🏦 PNB</span>
+            <span class="bank-badge">🏦 KOTAK</span>
+            <span class="bank-badge">🏦 BOB</span>
+            <span class="bank-badge">🏦 YES BANK</span>
+            <span class="bank-badge">🏦 CANARA</span>
+            <span class="bank-badge">🏦 IDFC</span>
+            <span class="bank-badge">📑 PDF Support</span>
+        </div>
+        
+        <div class="file-type-tabs">
+            <button class="tab-btn active" onclick="switchTab('excel')">📊 Excel File (.xlsx, .xls)</button>
+            <button class="tab-btn" onclick="switchTab('pdf')">📑 PDF File</button>
+        </div>
+        
+        <div class="upload-area" onclick="document.getElementById('fileInput').click()">
+            <div class="upload-icon" id="uploadIcon">📂</div>
+            <p id="uploadText">Click to select bank statement (Excel/PDF)</p>
+        </div>
+        
+        <input type="file" id="fileInput" accept=".xlsx,.xls,.xlsm,.pdf" style="display:none">
+        
+        <div id="fileInfo" style="display:none"></div>
+        <div id="detectedInfo" class="detected-info"></div>
+        
+        <button class="btn btn-primary" id="convertBtn" onclick="convertToTally()" disabled>
+            🔄 Convert to Tally Prime Format
+        </button>
+        
+        <button class="btn btn-green" onclick="downloadTemplate()">
+            📥 Download Sample Template (Tally Ready)
+        </button>
+        
+        <div class="info-box">
+            <h3>📌 Supported Banks & Auto Detection:</h3>
+            <ul>
+                <li><strong>HDFC</strong> → Date, Description, Withdrawal Amt, Deposit Amt</li>
+                <li><strong>SBI / PNB / BOB / Canara</strong> → Date, Particulars, Debit, Credit</li>
+                <li><strong>ICICI</strong> → Transaction Date, Description, Debit, Credit</li>
+                <li><strong>AXIS / YES / IDFC</strong> → Single amount column with + or - sign</li>
+                <li><strong>Kotak Mahindra</strong> → Date, Transaction Details, Debit, Credit</li>
+                <li><strong>PDF Files</strong> → Smart text extraction from any bank PDF</li>
+            </ul>
+            <p style="margin-top: 10px; font-size: 12px; color: #666;">✅ Tally Prime Expected Format: Date (DD-MM-YYYY), Narration, Debit, Credit, Bank Name</p>
+        </div>
+        
+        <div id="status"></div>
+    </div>
+    
+    <script>
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
+        
+        let selectedFile = null;
+        let currentTab = 'excel';
+        
+        function switchTab(tab) {
+            currentTab = tab;
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            if(tab === 'excel') {
+                document.querySelector('.tab-btn:first-child').classList.add('active');
+                document.getElementById('fileInput').accept = '.xlsx,.xls,.xlsm';
+                document.getElementById('uploadIcon').innerHTML = '📊';
+                document.getElementById('uploadText').innerHTML = 'Click to select bank Excel file';
+            } else {
+                document.querySelector('.tab-btn:last-child').classList.add('active');
+                document.getElementById('fileInput').accept = '.pdf';
+                document.getElementById('uploadIcon').innerHTML = '📑';
+                document.getElementById('uploadText').innerHTML = 'Click to select bank PDF file';
+            }
+            removeFile();
+        }
+        
+        document.getElementById('fileInput').addEventListener('change', async function(e) {
+            if(e.target.files.length > 0) {
+                selectedFile = e.target.files[0];
+                const fileType = selectedFile.name.split('.').pop().toUpperCase();
+                document.getElementById('fileInfo').innerHTML = `
+                    <div class="file-info">
+                        <span>📄 ${selectedFile.name} <span style="background:#667eea;color:white;font-size:10px;padding:2px 8px;border-radius:20px;margin-left:8px;">${fileType}</span></span>
+                        <div class="remove-icon" onclick="removeFile()">✖</div>
+                    </div>
+                `;
+                document.getElementById('fileInfo').style.display = 'block';
+                document.querySelector('.upload-area').style.display = 'none';
+                document.getElementById('convertBtn').disabled = false;
+                
+                if(currentTab === 'excel') {
+                    await detectExcelColumns(selectedFile);
+                } else {
+                    document.getElementById('detectedInfo').style.display = 'none';
+                }
+            }
+        });
+        
+        async function detectExcelColumns(file) {
+            return new Promise((resolve) => {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    try {
+                        const data = new Uint8Array(e.target.result);
+                        const workbook = XLSX.read(data, {type: 'array'});
+                        const sheet = workbook.Sheets[workbook.SheetNames[0]];
+                        const rows = XLSX.utils.sheet_to_json(sheet, {header: 1});
+                        
+                        if(rows.length > 0) {
+                            const headers = rows[0].map(h => String(h || '').toLowerCase());
+                            const colNames = rows[0];
+                            
+                            let dateCol = findColumn(headers, ['date', 'transaction date', 'value date', 'posted date']);
+                            let narrationCol = findColumn(headers, ['description', 'narration', 'particulars', 'transaction details']);
+                            let debitCol = findColumn(headers, ['debit', 'dr', 'withdrawal', 'withdrawal amt']);
+                            let creditCol = findColumn(headers, ['credit', 'cr', 'deposit', 'deposit amt']);
+                            
+                            let detectionHtml = `<strong>🔍 Detected Columns:</strong><br>`;
+                            detectionHtml += `📅 Date: ${dateCol !== -1 ? colNames[dateCol] : 'Auto-detect'}<br>`;
+                            detectionHtml += `📝 Narration: ${narrationCol !== -1 ? colNames[narrationCol] : 'Auto-detect'}<br>`;
+                            detectionHtml += `💰 Debit: ${debitCol !== -1 ? colNames[debitCol] : 'Auto-detect from amount column'}<br>`;
+                            detectionHtml += `💰 Credit: ${creditCol !== -1 ? colNames[creditCol] : 'Auto-detect from amount column'}<br>`;
+                            
+                            document.getElementById('detectedInfo').innerHTML = detectionHtml;
+                            document.getElementById('detectedInfo').style.display = 'block';
+                        }
+                        resolve();
+                    } catch(err) {
+                        resolve();
+                    }
+                };
+                reader.readAsArrayBuffer(file);
+            });
+        }
+        
+        function findColumn(headers, possibleNames) {
+            for(let name of possibleNames) {
+                const index = headers.findIndex(h => h.includes(name));
+                if(index !== -1) return index;
+            }
+            return -1;
+        }
+        
+        function removeFile() {
+            selectedFile = null;
+            document.getElementById('fileInput').value = '';
+            document.getElementById('fileInfo').style.display = 'none';
+            document.getElementById('detectedInfo').style.display = 'none';
+            document.getElementById('convertBtn').disabled = true;
+            document.querySelector('.upload-area').style.display = 'block';
+            document.getElementById('status').innerHTML = '';
+        }
+        
+        async function convertToTally() {
+            if(!selectedFile) {
+                showStatus('❌ Please select a file first!', 'error');
+                return;
+            }
+            
+            showStatus('⏳ Processing... Please wait', 'loading');
+            
+            try {
+                let transactions = [];
+                
+                if(currentTab === 'excel') {
+                    transactions = await parseExcelUniversal(selectedFile);
+                } else {
+                    transactions = await parsePDFUniversal(selectedFile);
+                }
+                
+                if(transactions.length === 0) {
+                    showStatus('❌ No transactions found in file!', 'error');
+                    return;
+                }
+                
+                const tallyRows = [];
+                tallyRows.push(['Date', 'Narration', 'Debit', 'Credit', 'BankName']);
+                
+                for(let i = 0; i < transactions.length; i++) {
+                    const txn = transactions[i];
+                    tallyRows.push([
+                        formatDateUniversal(txn.date),
+                        String(txn.narration || 'N/A').substring(0, 100),
+                        Number(txn.debit) || 0,
+                        Number(txn.credit) || 0,
+                        'Bank Ledger'
+                    ]);
+                }
+                
+                const ws = XLSX.utils.aoa_to_sheet(tallyRows);
+                const wb = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(wb, ws, 'Tally_Bank_Statement');
+                
+                ws['!cols'] = [
+                    {wch:12}, {wch:45}, {wch:12}, {wch:12}, {wch:15}
+                ];
+                
+                const fileName = `tally_bank_statement_${Date.now()}.xlsx`;
+                XLSX.writeFile(wb, fileName);
+                showStatus(`✅ Converted ${transactions.length} transactions! File downloaded: ${fileName}`, 'success');
+                
+            } catch(err) {
+                showStatus('❌ Error: ' + err.message, 'error');
+            }
+        }
+        
+        function parseExcelUniversal(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    try {
+                        const data = new Uint8Array(e.target.result);
+                        const workbook = XLSX.read(data, {type: 'array'});
+                        const sheet = workbook.Sheets[workbook.SheetNames[0]];
+                        const rows = XLSX.utils.sheet_to_json(sheet);
+                        
+                        if(rows.length === 0) {
+                            resolve([]);
+                            return;
+                        }
+                        
+                        const allTransactions = [];
+                        
+                        for(let i = 0; i < rows.length; i++) {
+                            const row = rows[i];
+                            
+                            let date = row['Date'] || row['DATE'] || row['Transaction Date'] || row['Value Date'] || row['Posted Date'] || '';
+                            let narration = row['Description'] || row['Narration'] || row['Particulars'] || row['Transaction Details'] || row['Remarks'] || '';
+                            
+                            let debit = row['Debit'] || row['DR'] || row['Withdrawal'] || row['Withdrawal Amt'] || 0;
+                            let credit = row['Credit'] || row['CR'] || row['Deposit'] || row['Deposit Amt'] || 0;
+                            
+                            if((debit === 0 || debit === '') && (credit === 0 || credit === '')) {
+                                let amount = row['Amount'] || row['Transaction Amount'] || row['Txn Amount'] || '';
+                                if(amount !== '') {
+                                    let amountStr = String(amount);
+                                    if(amountStr.includes('-') || amountStr.startsWith('-')) {
+                                        debit = Math.abs(parseFloat(amountStr));
+                                        credit = 0;
+                                    } else {
+                                        debit = 0;
+                                        credit = parseFloat(amountStr);
+                                    }
+                                }
+                            }
+                            
+                            if(date && (Number(debit) > 0 || Number(credit) > 0)) {
+                                allTransactions.push({
+                                    date: date,
+                                    narration: String(narration).substring(0, 100),
+                                    debit: Number(debit) || 0,
+                                    credit: Number(credit) || 0
+                                });
+                            }
+                        }
+                        
+                        resolve(allTransactions);
+                    } catch(err) {
+                        reject(err);
+                    }
+                };
+                reader.onerror = () => reject(new Error('File read error'));
+                reader.readAsArrayBuffer(file);
+            });
+        }
+        
+        async function parsePDFUniversal(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = async function(e) {
+                    try {
+                        const typedarray = new Uint8Array(e.target.result);
+                        const pdf = await pdfjsLib.getDocument({data: typedarray}).promise;
+                        let fullText = '';
+                        
+                        for(let i = 1; i <= Math.min(pdf.numPages, 30); i++) {
+                            const page = await pdf.getPage(i);
+                            const textContent = await page.getTextContent();
+                            const pageText = textContent.items.map(item => item.str).join(' ');
+                            fullText += pageText + '\n';
+                        }
+                        
+                        const transactions = parsePDFTextToTransactions(fullText);
+                        resolve(transactions);
+                    } catch(err) {
+                        reject(new Error('PDF processing error: ' + err.message));
+                    }
+                };
+                reader.onerror = () => reject(new Error('File read error'));
+                reader.readAsArrayBuffer(file);
+            });
+        }
+        
+        function parsePDFTextToTransactions(text) {
+            const transactions = [];
+            const lines = text.split('\n');
+            const datePattern = /(\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4})/;
+            const amountPattern = /([\d,]+\.?\d*)/;
+            
+            let currentTxn = {};
+            
+            for(let line of lines) {
+                let dateMatch = line.match(datePattern);
+                
+                if(dateMatch) {
+                    if(currentTxn.date && (currentTxn.debit > 0 || currentTxn.credit > 0)) {
+                        transactions.push(currentTxn);
+                    }
+                    currentTxn = {date: dateMatch[1]};
+                    
+                    let amountMatches = line.match(amountPattern);
+                    if(amountMatches && amountMatches.length > 0) {
+                        let lastAmount = amountMatches[amountMatches.length - 1];
+                        let amountVal = parseFloat(lastAmount.replace(/,/g, ''));
+                        if(!isNaN(amountVal)) {
+                            if(line.toLowerCase().includes('debit') || line.toLowerCase().includes('dr') || line.includes('-')) {
+                                currentTxn.debit = amountVal;
+                                currentTxn.credit = 0;
+                            } else {
+                                currentTxn.debit = 0;
+                                currentTxn.credit = amountVal;
+                            }
+                        }
+                    }
+                    
+                    let narrationText = line.replace(dateMatch[0], '').replace(amountPattern, '').trim();
+                    currentTxn.narration = narrationText.substring(0, 100) || 'Transaction';
+                }
+                else if(currentTxn.date && (!currentTxn.narration || currentTxn.narration.length < 10)) {
+                    let cleanLine = line.replace(amountPattern, '').trim();
+                    if(cleanLine.length > 5) {
+                        currentTxn.narration = (currentTxn.narration ? currentTxn.narration + ' ' : '') + cleanLine.substring(0, 80);
+                    }
+                }
+            }
+            
+            if(currentTxn.date && (currentTxn.debit > 0 || currentTxn.credit > 0)) {
+                transactions.push(currentTxn);
+            }
+            
+            return transactions;
+        }
+        
+        function formatDateUniversal(date) {
+            if(!date) return '';
+            try {
+                let dateStr = String(date);
+                
+                if(dateStr.includes('/')) {
+                    let parts = dateStr.split('/');
+                    if(parts.length === 3) {
+                        let day = parts[0].padStart(2,'0');
+                        let month = parts[1].padStart(2,'0');
+                        let year = parts[2].length === 2 ? '20' + parts[2] : parts[2];
+                        return `${day}-${month}-${year}`;
+                    }
+                }
+                
+                if(dateStr.includes('-')) {
+                    let parts = dateStr.split('-');
+                    if(parts.length === 3) {
+                        let day = parts[0].padStart(2,'0');
+                        let month = parts[1].padStart(2,'0');
+                        let year = parts[2];
+                        if(year.length === 2) year = '20' + year;
+                        return `${day}-${month}-${year}`;
+                    }
+                }
+                
+                const d = new Date(date);
+                if(!isNaN(d.getTime())) {
+                    const day = d.getDate().toString().padStart(2,'0');
+                    const month = (d.getMonth()+1).toString().padStart(2,'0');
+                    const year = d.getFullYear();
+                    return `${day}-${month}-${year}`;
+                }
+                
+                return dateStr;
+            } catch(e) {
+                return String(date);
+            }
+        }
+        
+        function showStatus(msg, type) {
+            const statusDiv = document.getElementById('status');
+            statusDiv.className = `status ${type}`;
+            statusDiv.innerHTML = msg;
+            setTimeout(() => {
+                if(statusDiv.className === `status ${type}`) {
+                    statusDiv.innerHTML = '';
+                    statusDiv.style.display = 'none';
+                }
+            }, 6000);
+        }
+        
+        function downloadTemplate() {
+            const template = [
+                ['Date', 'Narration', 'Debit', 'Credit', 'BankLedger'],
+                ['01-04-2026', 'SALARY CREDIT - ABC COMPANY', '', '50000', 'HDFC Bank'],
+                ['02-04-2026', 'NEFT RECEIVED - CUSTOMER', '', '25000', 'HDFC Bank'],
+                ['03-04-2026', 'ATM WITHDRAWAL - CASH', '5000', '', 'HDFC Bank'],
+                ['04-04-2026', 'UPI PAYMENT - AMAZON', '1500', '', 'HDFC Bank'],
+                ['05-04-2026', 'CHEQUE PAYMENT - RENT', '20000', '', 'HDFC Bank'],
+                ['06-04-2026', 'IMPS RECEIVED - CLIENT', '', '35000', 'HDFC Bank'],
+                ['07-04-2026', 'INTEREST CREDITED', '', '1250', 'HDFC Bank']
+            ];
+            const ws = XLSX.utils.aoa_to_sheet(template);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, 'Tally_Ready_Template');
+            ws['!cols'] = [{wch:12}, {wch:45}, {wch:12}, {wch:12}, {wch:15}];
+            XLSX.writeFile(wb, 'tally_bank_template.xlsx');
+        }
+    </script>
 </body>
 </html>
