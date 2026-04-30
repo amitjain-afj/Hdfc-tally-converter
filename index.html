@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HDFC to Tally Converter</title>
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 16px;
+        }
+        
+        .container {
+            max-width: 500px;
+            margin: auto;
+            background: white;
+            border-radius: 24px;
+            padding: 24px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+        
+        h1 {
+            font-size: 24px;
+            text-align: center;
+            color: #333;
+            margin-bottom: 8px;
+        }
+        
+        .sub {
+            text-align: center;
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 24px;
+        }
+        
+        .upload-box {
+            border: 2px dashed #667eea;
+            border-radius: 16px;
+            padding: 40px 20px;
+            text-align: center;
+            background: #f8f9ff;
+            margin-bottom: 20px;
+            cursor: pointer;
+        }
+        
+        .upload-icon {
+            font-size: 48px;
+            margin-bottom: 12px;
+        }
+        
+        .file-info {
+            background: #e8f4f8;
+            padding: 12px 16px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .btn {
+            width: 100%;
+            padding: 16px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            margin: 8px 0;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .btn-green {
+            background: #28a745;
+            color: white;
+        }
+        
+        .info {
+            background: #f0f0f0;
+            padding: 16px;
+            border-radius: 12px;
+            margin-top: 20px;
+            font-size: 14px;
+        }
+        
+        .info h3 {
+            font-size: 16px;
+            margin-bottom: 12px;
+        }
+        
+        .info ol {
+            margin-left: 20px;
+        }
+        
+        .info li {
+            margin: 8px 0;
+        }
+        
+        .status {
+            margin-top: 16px;
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+            display: none;
+        }
+        
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            display: block;
+        }
+        
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            display: block;
+        }
+        
+        .remove-icon {
+            background: #ff4757;
+            color: white;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🏦 HDFC Bank → Tally Prime</h1>
+        <div class="sub">Bank Statement Converter</div>
+        
+        <div class="upload-box" onclick="document.getElementById('fileInput').click()">
+            <div class="upload-icon">📁</div>
+            <p>Tap to select HDFC Excel file</p>
+        </div>
+        
+        <input type="file" id="fileInput" accept=".xlsx,.xls" style="display:none">
+        
+        <div id="fileInfo" style="display:none"></div>
+        
+        <button class="btn btn-primary" id="convertBtn" onclick="convertToTally()" disabled>
+            🔄 Convert to Tally Format
+        </button>
+        
+        <button class="btn btn-green" onclick="downloadTemplate()">
+            📥 Download Sample Template
+        </button>
+        
+        <div class="info">
+            <h3>📌 Kaise Use Karein:</h3>
+            <ol>
+                <li>HDFC bank ki Excel file select karein</li>
+                <li>Convert button dabayein</li>
+                <li>File download hogi Tally format mein</li>
+                <li>Tally Prime → Import Bank Statement</li>
+                <li>File select karein → Done ✅</li>
+            </ol>
+        </div>
+        
+        <div id="status"></div>
+    </div>
+    
+    <script>
+        let selectedFile = null;
+        
+        document.getElementById('fileInput').addEventListener('change', function(e) {
+            if(e.target.files.length > 0) {
+                selectedFile = e.target.files[0];
+                document.getElementById('fileInfo').innerHTML = `
+                    <div class="file-info">
+                        <span>📄 ${selectedFile.name}</span>
+                        <div class="remove-icon" onclick="removeFile()">✖</div>
+                    </div>
+                `;
+                document.getElementById('fileInfo').style.display = 'block';
+                document.getElementById('convertBtn').disabled = false;
+                document.querySelector('.upload-box').style.display = 'none';
+            }
+        });
+        
+        function removeFile() {
+            selectedFile = null;
+            document.getElementById('fileInput').value = '';
+            document.getElementById('fileInfo').style.display = 'none';
+            document.getElementById('convertBtn').disabled = true;
+            document.querySelector('.upload-box').style.display = 'block';
+            document.getElementById('status').innerHTML = '';
+        }
+        
+        function convertToTally() {
+            if(!selectedFile) {
+                showStatus('❌ Pehle file select karein!', 'error');
+                return;
+            }
+            
+            showStatus('⏳ Converting... Please wait', 'success');
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = new Uint8Array(e.target.result);
+                    const workbook = XLSX.read(data, {type: 'array'});
+                    const sheet = workbook.Sheets[workbook.SheetNames[0]];
+                    const rows = XLSX.utils.sheet_to_json(sheet);
+                    
+                    if(rows.length === 0) {
+                        showStatus('❌ File khali hai!', 'error');
+                        return;
+                    }
+                    
+                    const tallyRows = [];
+                    tallyRows.push(['Date', 'Narration', 'Debit', 'Credit', 'BankName']);
+                    
+                    for(let i = 0; i < rows.length; i++) {
+                        const row = rows[i];
+                        
+                        const date = row['Date'] || row['DATE'] || row['Transaction Date'] || row['Value Date'] || '';
+                        const narration = row['Description'] || row['Narration'] || row['Remarks'] || row['Transaction Description'] || 'N/A';
+                        const debit = row['Withdrawal'] || row['Withdrawal Amt'] || row['Debit'] || row['DR'] || 0;
+                        const credit = row['Deposit'] || row['Deposit Amt'] || row['Credit'] || row['CR'] || 0;
+                        
+                        tallyRows.push([
+                            formatDate(date),
+                            String(narration).substring(0, 100),
+                            Number(debit) || 0,
+                            Number(credit) || 0,
+                            'HDFC Bank'
+                        ]);
+                    }
+                    
+                    const ws = XLSX.utils.aoa_to_sheet(tallyRows);
+                    const wb = XLSX.utils.book_new();
+                    XLSX.utils.book_append_sheet(wb, ws, 'Tally_Bank_Statement');
+                    
+                    ws['!cols'] = [
+                        {wch:12}, {wch:40}, {wch:12}, {wch:12}, {wch:15}
+                    ];
+                    
+                    const fileName = `tally_hdfc_${Date.now()}.xlsx`;
+                    XLSX.writeFile(wb, fileName);
+                    showStatus('✅ Converted successfully! File downloaded: ' + fileName, 'success');
+                    
+                } catch(err) {
+                    showStatus('❌ Error: ' + err.message, 'error');
+                }
+            };
+            reader.onerror = function() {
+                showStatus('❌ File read error!', 'error');
+            };
+            reader.readAsArrayBuffer(selectedFile);
+        }
+        
+        function formatDate(date) {
+            if(!date) return '';
+            try {
+                const d = new Date(date);
+                if(isNaN(d.getTime())) return String(date);
+                const day = d.getDate().toString().padStart(2,'0');
+                const month = (d.getMonth()+1).toString().padStart(2,'0');
+                const year = d.getFullYear();
+                return `${day}-${month}-${year}`;
+            } catch(e) {
+                return String(date);
+            }
+        }
+        
+        function showStatus(msg, type) {
+            const statusDiv = document.getElementById('status');
+            statusDiv.className = `status ${type}`;
+            statusDiv.innerHTML = msg;
+            setTimeout(() => {
+                if(statusDiv.className === `status ${type}`) {
+                    statusDiv.innerHTML = '';
+                    statusDiv.style.display = 'none';
+                }
+            }, 5000);
+        }
+        
+        function downloadTemplate() {
+            const template = [
+                ['Date', 'Description', 'Withdrawal', 'Deposit'],
+                ['01-04-2026', 'SALARY CREDIT', '', '50000'],
+                ['02-04-2026', 'ATM WITHDRAWAL', '5000', ''],
+                ['03-04-2026', 'UPI PAYMENT', '1500', ''],
+                ['04-04-2026', 'NEFT RECEIVED', '', '25000'],
+                ['05-04-2026', 'CHEQUE PAYMENT', '10000', '']
+            ];
+            const ws = XLSX.utils.aoa_to_sheet(template);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, 'HDFC_Sample');
+            XLSX.writeFile(wb, 'hdfc_sample_format.xlsx');
+        }
+    </script>
+</body>
+</html>
